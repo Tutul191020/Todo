@@ -1,11 +1,17 @@
 package com.example.todo.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Data
 @Table(name = "user_accounts", uniqueConstraints = @UniqueConstraint(columnNames = "username"))
+@Inheritance(strategy = InheritanceType.JOINED)
+
 public class UserAccount {
 
     @Id
@@ -15,32 +21,19 @@ public class UserAccount {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
     private String firstName;
 
-    @Column(nullable = false)
     private String lastName;
 
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AccountStatus status;
-
-    @Column(nullable = false)
-    private boolean isAdmin;
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = false)
-    private List<TodoItem> todos;
-
-
-    @PrePersist
-    public void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
 
 }
