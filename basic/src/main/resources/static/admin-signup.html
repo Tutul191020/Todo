@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Registration - Todo App</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <!-- Admin Registration Section -->
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1 class="app-title">🔐 Admin Registration</h1>
+            <p class="app-subtitle">Create an administrator account</p>
+
+            <!-- Admin Register Form -->
+            <div class="auth-form">
+                <h2>Admin Account</h2>
+                <div class="form-group">
+                    <input type="text" id="adminUsername" placeholder="Username" class="input-field"
+                        autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="adminFirstName" placeholder="First Name" class="input-field"
+                        autocomplete="given-name">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="adminLastName" placeholder="Last Name" class="input-field"
+                        autocomplete="family-name">
+                </div>
+                <div class="form-group">
+                    <input type="email" id="adminEmail" placeholder="Email" class="input-field" autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="adminPassword" placeholder="Password" class="input-field"
+                        autocomplete="new-password">
+                </div>
+                <button onclick="registerAdmin()" class="btn btn-primary">Create Admin Account</button>
+                <p class="auth-switch">
+                    <a href="/">← Back to Login</a>
+                </p>
+            </div>
+
+            <div id="adminMessage" class="message"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+
+        function showMessage(message, type = 'info') {
+            const msgEl = document.getElementById('adminMessage');
+            msgEl.textContent = message;
+            msgEl.className = `message ${type}`;
+            msgEl.style.display = 'block';
+
+            setTimeout(() => {
+                msgEl.style.display = 'none';
+            }, 5000);
+        }
+
+        async function apiCall(endpoint, method = 'GET', body = null) {
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            const config = {
+                method,
+                headers
+            };
+
+            if (body) {
+                config.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(API_BASE + endpoint, config);
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('API Error:', error);
+                return { success: false, message: 'Network error occurred' };
+            }
+        }
+
+        async function registerAdmin() {
+            const username = document.getElementById('adminUsername').value.trim();
+            const firstName = document.getElementById('adminFirstName').value.trim();
+            const lastName = document.getElementById('adminLastName').value.trim();
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
+
+            if (!username || !firstName || !lastName || !email || !password) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+
+            const response = await apiCall('/public/auth/admin/register', 'POST', {
+                username,
+                firstName,
+                lastName,
+                email,
+                password
+            });
+
+            if (response.success) {
+                showMessage('Admin registration successful! Redirecting to login...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                showMessage(response.message || 'Registration failed', 'error');
+            }
+        }
+
+        // Add enter key support
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') registerAdmin();
+            });
+        });
+    </script>
+</body>
+
+</html>

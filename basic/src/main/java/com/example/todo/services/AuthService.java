@@ -1,6 +1,5 @@
 package com.example.todo.services;
 
-
 import com.example.todo.common.ApiResponse;
 import com.example.todo.dto.AdminRegisterRequest;
 import com.example.todo.dto.JwtResponse;
@@ -33,11 +32,10 @@ public class AuthService {
     public ApiResponse<JwtResponse> login(LoginRequest request) {
         try {
             Authentication authentication = authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-            );
+                    new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            UserAccount user = userDetails.getUser();
+            UserPrincipal userDetails = (UserPrincipal) authentication.getPrincipal();
+            UserAccount user = userDetails.user();
 
             boolean isAdmin = user instanceof AdminAccount admin && admin.isAdmin();
 
@@ -49,8 +47,7 @@ public class AuthService {
                     "Bearer",
                     expiresAt,
                     user.getUsername(),
-                    isAdmin ? "ADMIN" : "USER"
-            );
+                    isAdmin ? "ADMIN" : "USER");
 
             return ApiResponse.success("Login successful", jwtResponse);
 
@@ -58,7 +55,6 @@ public class AuthService {
             return ApiResponse.failure("Invalid username or password");
         }
     }
-
 
     public ApiResponse<String> register(RegisterRequest req) {
         if (userRepository.findByUsername(req.getUsername()).isPresent()) {
@@ -72,7 +68,8 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setStatus(AccountStatus.ENABLED);
         userRepository.save(user);
-        return ApiResponse.success("User registered successfully", String.format("User '%s' registered successfully with userName '%s' ",user.getFirstName(),user.getUsername()));
+        return ApiResponse.success("User registered successfully", String.format(
+                "User '%s' registered successfully with userName '%s' ", user.getFirstName(), user.getUsername()));
     }
 
     public ApiResponse<String> registerAdmin(AdminRegisterRequest req) {
@@ -82,6 +79,9 @@ public class AuthService {
         if (req.getPassword() == null || req.getPassword().isBlank())
             return ApiResponse.failure("Password cannot be empty");
 
+        if (req.getEmail() == null || req.getEmail().isBlank())
+            return ApiResponse.failure("Email cannot be empty");
+
         if (adminRepository.findByEmail(req.getEmail()).isPresent())
             return ApiResponse.failure("Email already in use");
 
@@ -90,6 +90,8 @@ public class AuthService {
 
         AdminAccount admin = new AdminAccount();
         admin.setUsername(req.getUsername());
+        admin.setFirstName(req.getFirstName());
+        admin.setLastName(req.getLastName());
         admin.setPassword(passwordEncoder.encode(req.getPassword()));
         admin.setEmail(req.getEmail());
         admin.setStatus(AccountStatus.ENABLED);
@@ -99,8 +101,6 @@ public class AuthService {
 
         return ApiResponse.success(
                 "Admin registered successfully",
-                String.format("Admin '%s' registered with email '%s'", req.getUsername(), req.getEmail())
-        );
+                String.format("Admin '%s' registered with email '%s'", req.getUsername(), req.getEmail()));
     }
 }
-

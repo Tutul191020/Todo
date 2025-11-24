@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AdminRegisterRequest {
     private String username;
+    private String firstName;
+    private String lastName;
     private String email;
     private String password;
 }

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Todo App</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <!-- Auth Section -->
+    <div id="authSection" class="auth-container">
+        <div class="auth-card">
+            <h1 class="app-title">✨ Todo App</h1>
+            <p class="app-subtitle">Stay organized, stay productive</p>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <h2>Welcome Back</h2>
+                <div class="form-group">
+                    <input type="text" id="loginUsername" placeholder="Username" class="input-field"
+                        autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="loginPassword" placeholder="Password" class="input-field"
+                        autocomplete="current-password">
+                </div>
+                <button onclick="login()" class="btn btn-primary">Sign In</button>
+                <p class="auth-switch">
+                    Don't have an account?
+                    <a href="#" onclick="showRegister(); return false;">Sign up</a>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form" style="display: none;">
+                <h2>Create Account</h2>
+                <div class="form-group">
+                    <input type="text" id="regUsername" placeholder="Username" class="input-field"
+                        autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="regFirstName" placeholder="First Name" class="input-field"
+                        autocomplete="given-name">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="regLastName" placeholder="Last Name" class="input-field"
+                        autocomplete="family-name">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="regPassword" placeholder="Password" class="input-field"
+                        autocomplete="new-password">
+                </div>
+                <button onclick="register()" class="btn btn-primary">Create Account</button>
+                <p class="auth-switch">
+                    Already have an account?
+                    <a href="#" onclick="showLogin(); return false;">Sign in</a>
+                </p>
+            </div>
+
+            <div id="authMessage" class="message"></div>
+        </div>
+    </div>
+
+    <!-- Main App Section -->
+    <div id="appSection" class="app-container" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="header-title">✨ My Todos</h1>
+                <div class="user-info">
+                    <span id="userDisplay" class="user-name"></span>
+                    <button onclick="logout()" class="btn btn-secondary btn-sm">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Add Todo Form -->
+            <div class="add-todo-card">
+                <h3>Add New Todo</h3>
+                <div class="form-group">
+                    <input type="text" id="todoTitle" placeholder="What needs to be done?" class="input-field">
+                </div>
+                <div class="form-group">
+                    <textarea id="todoDescription" placeholder="Add details (optional)"
+                        class="input-field textarea-field" rows="3"></textarea>
+                </div>
+                <button onclick="createTodo()" class="btn btn-primary">
+                    <span>+ Add Todo</span>
+                </button>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="filter-bar">
+                <button onclick="setFilter('all')" class="filter-btn active" data-filter="all">All</button>
+                <button onclick="setFilter('TODO')" class="filter-btn" data-filter="TODO">Active</button>
+                <button onclick="setFilter('COMPLETED')" class="filter-btn" data-filter="COMPLETED">Completed</button>
+            </div>
+
+            <!-- Todo List -->
+            <div id="todoList" class="todo-list">
+                <div class="loading">Loading todos...</div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <section class="dashboard-section">
+                <h2>📊 Monthly Dashboard</h2>
+
+                <div class="month-selector">
+                    <label for="monthSelect">Select Month:</label>
+                    <input type="month" id="monthSelect" class="input-field" onchange="loadDashboard()">
+                </div>
+
+                <div class="stats-cards">
+                    <div class="stat-card clickable" onclick="filterByStatus('all')">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="totalTodos">0</div>
+                            <div class="stat-label">Total Tasks</div>
+                        </div>
+                    </div>
+                    <div class="stat-card clickable" onclick="filterByStatus('COMPLETED')">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="completedTodos">0</div>
+                            <div class="stat-label">Completed</div>
+                        </div>
+                    </div>
+                    <div class="stat-card clickable" onclick="filterByStatus('IN_PROGRESS')">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="inProgressTodos">0</div>
+                            <div class="stat-label">In Progress</div>
+                        </div>
+                    </div>
+                    <div class="stat-card clickable" onclick="filterByStatus('TODO')">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="todoTodos">0</div>
+                            <div class="stat-label">To Do</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Task Distribution</h3>
+                    <canvas id="todoChart"></canvas>
+                </div>
+            </section>
+            <!-- Admin Section -->
+            <div id="adminSection" style="display: none;">
+                <div class="admin-card">
+                    <h3>🔐 Admin Panel</h3>
+                    <p>View all users' todos</p>
+                    <button onclick="loadAllTodos()" class="btn btn-secondary">Load All Todos</button>
+                </div>
+                <div id="adminTodoList" class="todo-list"></div>
+            </div>
+
+            <div id="appMessage" class="message"></div>
+        </main>
+
+        <!-- Edit Todo Modal -->
+        <div id="editModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h3>Edit Todo</h3>
+                <div class="form-group">
+                    <input type="text" id="editTitle" placeholder="Title" class="input-field">
+                </div>
+                <div class="form-group">
+                    <textarea id="editDescription" placeholder="Description" class="input-field textarea-field"
+                        rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Status:</label>
+                    <select id="editStatus" class="input-field">
+                        <option value="TODO">To Do</option>
+                        <option value="IN_PROGRESS">In Progress</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="DONE">Done</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button onclick="saveEdit()" class="btn btn-primary">Save Changes</button>
+                    <button onclick="closeEditModal()" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+
+</html>

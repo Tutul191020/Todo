@@ -10,13 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-public class CustomUserDetails implements UserDetails {
-
-    private final UserAccount user;
-
-    public CustomUserDetails(UserAccount user) {
-        this.user = user;
-    }
+public record UserPrincipal(UserAccount user) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -55,7 +49,4 @@ public class CustomUserDetails implements UserDetails {
         return user.getStatus() == AccountStatus.ENABLED;
     }
 
-    public UserAccount getUser() {
-        return user;
-    }
 }
